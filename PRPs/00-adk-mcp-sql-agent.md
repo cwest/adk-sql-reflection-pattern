@@ -16,7 +16,7 @@ This plan details the implementation of an SQL Generation Agent using ADK and MC
 - **ADK Structure:** ADK `adk web` expects an `AGENTS_DIR` containing subdirectories for each agent (e.g., `agents/sql_agent/agent.py`).
 - **ADK & MCP:** ADK supports MCP via `MCPToolset`. We will use `StreamableHTTPConnectionParams` to connect to the `toolbox` server.
 - **MCP Toolbox:** Supports custom `tools.yaml` with environment variable substitution (e.g., `${GOOGLE_CLOUD_PROJECT}`).
-- **Arbitrary SQL & Dry Runs:** `bigquery-execute-sql` tool kind supports `dry_run`. We will define `validate_sql` (`dry_run: true`) and `execute_sql` in `tools.yaml`.
+- **Arbitrary SQL & Dry Runs:** `bigquery-execute-sql` tool kind supports `dry_run` as a runtime parameter. It cannot be hardcoded in `tools.yaml`. We will use `execute_sql` for both validation (passing `dry_run=True`) and execution.
 - **Loop Termination:** `LoopAgent` supports a `condition` parameter (callable taking state, returning bool).
 - **SQL Best Practices:** Detailed system instructions for BigQuery SQL generation have been identified.
 
@@ -30,7 +30,7 @@ This plan details the implementation of an SQL Generation Agent using ADK and MC
     -   Estimated effort: 30 mins
 
 2.  **Toolbox Configuration**
-    -   Description: Create `tools.yaml` with `bigquery-public-data` source and tools: `list_tables`, `get_table_info`, `validate_sql` (dry_run=true), `execute_sql`. Use `${GOOGLE_CLOUD_PROJECT}` for the billing project ID in the source configuration.
+    -   Description: Create `tools.yaml` with `bigquery-public-data` source and tools: `list_tables`, `get_table_info`, `execute_sql`. Use `${GOOGLE_CLOUD_PROJECT}` for the billing project ID in the source configuration.
     -   Files: `tools.yaml`
     -   Dependencies: `toolbox` binary on PATH (assumed).
     -   Estimated effort: 15 mins
@@ -60,7 +60,7 @@ This plan details the implementation of an SQL Generation Agent using ADK and MC
 6.  **SQL Generation & Validation Loop**
     -   Description: Implement `LoopAgent` in `agents/sql_agent/sql_generator_loop.py`.
         -   **Generator:** Drafts SQL using schema. Incorporate detailed system instructions into the prompt.
-        -   **Validator:** Calls `validate_sql` (dry run) via MCP.
+        -   **Validator:** Calls `execute_sql` with `dry_run=True` via MCP.
         -   **Reviewer:** Updates state based on dry run result (sets `sql_is_valid` flag).
         -   **Loop Termination:** Use `condition=lambda state: not state.get("sql_is_valid", False)` in `LoopAgent` constructor.
     -   Files: `agents/sql_agent/sql_generator_loop.py`
@@ -112,7 +112,7 @@ This plan details the implementation of an SQL Generation Agent using ADK and MC
 ## Success Criteria
 - [ ] `honcho start` successfully launches `toolbox` and `adk web`.
 - [ ] Agent authenticates via ADC and connects to `toolbox` via HTTP.
-- [ ] Reflection loop works using `validate_sql` and `condition`.
+- [ ] Reflection loop works using `execute_sql` with `dry_run=True`.
 - [ ] Generated SQL adheres to best practices (safety, efficiency).
 - [ ] Final response includes SQL and data.
 - [ ] Read-only operations only.

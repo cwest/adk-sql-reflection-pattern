@@ -12,18 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[project]
-name = "adk-sql-reflection-pattern"
-version = "0.1.0"
-requires-python = ">=3.11"
-dependencies = [
-    "google-adk>=1.17.0",
-    "honcho>=2.0.0",
-    "python-dotenv>=1.2.1",
-    "toolbox-core>=0.5.2",
-]
+import os
+from dotenv import load_dotenv
+from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 
-[dependency-groups]
-dev = [
-    "pytest>=8.4.2",
-]
+load_dotenv()
+
+TOOLBOX_HOST = os.getenv("TOOLBOX_HOST", "127.0.0.1")
+TOOLBOX_PORT = os.getenv("TOOLBOX_PORT", "5000")
+TOOLBOX_URL = f"http://{TOOLBOX_HOST}:{TOOLBOX_PORT}/mcp"
+
+mcp_connection_params = StreamableHTTPConnectionParams(url=TOOLBOX_URL)

@@ -12,18 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[project]
-name = "adk-sql-reflection-pattern"
-version = "0.1.0"
-requires-python = ">=3.11"
-dependencies = [
-    "google-adk>=1.17.0",
-    "honcho>=2.0.0",
-    "python-dotenv>=1.2.1",
-    "toolbox-core>=0.5.2",
-]
-
-[dependency-groups]
-dev = [
-    "pytest>=8.4.2",
-]

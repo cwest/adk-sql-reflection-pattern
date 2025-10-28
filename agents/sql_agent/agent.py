@@ -12,18 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[project]
-name = "adk-sql-reflection-pattern"
-version = "0.1.0"
-requires-python = ">=3.11"
-dependencies = [
-    "google-adk>=1.17.0",
-    "honcho>=2.0.0",
-    "python-dotenv>=1.2.1",
-    "toolbox-core>=0.5.2",
-]
+from google.adk.agents import SequentialAgent
+from .schema_inspector import schema_inspector
+from .sql_generator_loop import sql_generator_loop
+from .final_responder import final_responder
 
-[dependency-groups]
-dev = [
-    "pytest>=8.4.2",
-]
+root_agent = SequentialAgent(
+    name="sql_agent",
+    description="An agent that can answer questions about Google Trends data using BigQuery.",
+    sub_agents=[schema_inspector, sql_generator_loop, final_responder]
+)

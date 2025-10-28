@@ -12,18 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[project]
-name = "adk-sql-reflection-pattern"
-version = "0.1.0"
-requires-python = ">=3.11"
-dependencies = [
-    "google-adk>=1.17.0",
-    "honcho>=2.0.0",
-    "python-dotenv>=1.2.1",
-    "toolbox-core>=0.5.2",
-]
+sources:
+  bigquery-public-data:
+    kind: bigquery
+    project: ${GOOGLE_CLOUD_PROJECT}
+    writeMode: blocked
 
-[dependency-groups]
-dev = [
-    "pytest>=8.4.2",
-]
+tools:
+  list_tables:
+    kind: bigquery-list-table-ids
+    source: bigquery-public-data
+    description: List tables in a BigQuery dataset.
+
+  get_table_info:
+    kind: bigquery-get-table-info
+    source: bigquery-public-data
+    description: Get metadata for a BigQuery table.
+
+  execute_sql:
+    kind: bigquery-execute-sql
+    source: bigquery-public-data
+    description: Execute a SQL statement.
