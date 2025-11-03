@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from dotenv import load_dotenv
-from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
+resource "google_project_iam_member" "dataplex_aspect_user" {
+  project = var.google_cloud_project
+  role    = "roles/dataplex.aspectTypeUser"
+  member  = "user:${var.dataplex_admin_user}"
+}
 
-load_dotenv()
-
-TOOLBOX_HOST = os.getenv("TOOLBOX_HOST", "127.0.0.1")
-TOOLBOX_PORT = os.getenv("TOOLBOX_PORT", "5000")
-TOOLBOX_URL = f"http://{TOOLBOX_HOST}:{TOOLBOX_PORT}/mcp"
-
-mcp_connection_params = StreamableHTTPConnectionParams(url=TOOLBOX_URL)
-
-DATAPLEX_ENABLED = os.environ.get("DATAPLEX_ENABLED", "false").lower() == "true"
+resource "google_project_iam_member" "dataplex_editor" {
+  project = var.google_cloud_project
+  role    = "roles/dataplex.editor"
+  member  = "user:${var.dataplex_admin_user}"
+}

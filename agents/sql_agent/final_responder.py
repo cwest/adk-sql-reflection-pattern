@@ -16,26 +16,24 @@ from google.adk.agents import LlmAgent
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 from .config import mcp_connection_params
 
-execution_tools = McpToolset(
-    connection_params=mcp_connection_params,
-    tool_filter=['execute_sql']
-)
+def create_final_responder():
+    sql_tools = McpToolset(
+        connection_params=mcp_connection_params,
+        tool_filter=['execute_sql']
+    )
 
-final_responder = LlmAgent(
-    model="gemini-2.5-pro",
-    name="final_responder",
-    description="Executes the final SQL and answers the user's question.",
-    instruction="""
+    return LlmAgent(
+        model="gemini-2.5-pro",
+        name="final_responder",
+        description="Executes the final SQL and responds to the user.",
+        instruction="""
 You are the Final Responder.
-Read `sql_is_valid` from session state.
-If `sql_is_valid` is true:
-  1. Read `valid_sql` from session state.
-  2. Call `execute_sql` with `valid_sql` (ensure `dry_run` is False or omitted).
-  3. Answer the user's original question based on the data returned by `execute_sql`.
-  4. ALWAYS include the executed SQL query in your final response, formatted in a markdown code block.
-If `sql_is_valid` is false or missing (loop failed to converge):
-  1. Apologize to the user and explain that you could not generate a valid query.
-  2. Provide the last `candidate_sql` and the `guidance` (error message) from session state to help them understand what went wrong.
+Read the `valid_sql` from the session state.
+Execute the SQL using the `execute_sql` tool with `dry_run=False`.
+Format the results in a clear, human-readable way.
+Present the formatted results to the user as your final answer.
 """,
-    tools=[execution_tools]
-)
+        tools=[sql_tools]
+    )
+
+final_responder = create_final_responder()
