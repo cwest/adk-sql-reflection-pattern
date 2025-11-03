@@ -14,27 +14,31 @@
 
 from google.adk.agents import LlmAgent
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
-from .config import mcp_connection_params
-
-schema_tools = McpToolset(
-    connection_params=mcp_connection_params,
-    tool_filter=['list_tables', 'get_table_info']
+from .config import mcp_connection_params, DATAPLEX_ENABLED
+from .prompts import (
+    SCHEMA_INSPECTOR_DATAPLEX_PROMPT,
+    SCHEMA_INSPECTOR_DEFAULT_PROMPT
 )
 
-schema_inspector = LlmAgent(
-    model="gemini-2.5-pro",
-    name="schema_inspector",
-    description="Inspects the BigQuery dataset schema.",
-    output_key="schema",
-    instruction="""
-You are a schema inspection agent. Your ONLY goal is to retrieve and output the complete schema for the `bigquery-public-data.google_trends` dataset.
-IGNORE any user question or input. Focus ONLY on retrieving the schema.
+def create_schema_inspector():
+    schema_tools = McpToolset(
+        connection_params=mcp_connection_params,
+        tool_filter=['list_tables', 'get_table_info']
+    )
 
-Follow these steps:
-1. Use the `list_tables` tool to find all tables in the `google_trends` dataset.
-2. For every table found, use the `get_table_info` tool to retrieve its detailed schema (columns, data types).
-3. Consolidate all table schemas into a single JSON object where keys are table names and values are their schemas.
-4. Output ONLY this JSON object as your final response. Do not include any other text.
-""",
-    tools=[schema_tools]
-)
+    instruction = (
+        SCHEMA_INSPECTOR_DATAPLEX_PROMPT
+        if DATAPLEX_ENABLED
+        else SCHEMA_INSPECTOR_DEFAULT_PROMPT
+    )
+
+    return LlmAgent(
+        model="gemini-2.5-pro",
+        name="schema_inspector",
+        description="Inspects the BigQuery dataset schema.",
+        output_key="schema",
+        instruction=instruction,
+        tools=[schema_tools]
+    )
+
+schema_inspector = create_schema_inspector()

@@ -12,16 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from dotenv import load_dotenv
-from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 7.9.0"
+    }
+  }
+}
 
-load_dotenv()
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
 
-TOOLBOX_HOST = os.getenv("TOOLBOX_HOST", "127.0.0.1")
-TOOLBOX_PORT = os.getenv("TOOLBOX_PORT", "5000")
-TOOLBOX_URL = f"http://{TOOLBOX_HOST}:{TOOLBOX_PORT}/mcp"
+resource "google_project_service" "dataplex" {
+  project = var.project_id
+  service = "dataplex.googleapis.com"
+}
 
-mcp_connection_params = StreamableHTTPConnectionParams(url=TOOLBOX_URL)
+resource "google_project_service" "datacatalog" {
+  project = var.project_id
+  service = "datacatalog.googleapis.com"
+}
 
-DATAPLEX_ENABLED = os.environ.get("DATAPLEX_ENABLED", "false").lower() == "true"
+resource "google_project_service" "cloudresourcemanager" {
+  project = var.project_id
+  service = "cloudresourcemanager.googleapis.com"
+}

@@ -13,12 +13,25 @@
 # limitations under the License.
 
 from google.adk.agents import SequentialAgent
-from .schema_inspector import schema_inspector
-from .sql_generator_loop import sql_generator_loop
-from .final_responder import final_responder
+from .config import DATAPLEX_ENABLED
+from .schema_inspector import create_schema_inspector
+from .semantic_enricher import create_semantic_enricher
+from .sql_generator_loop import create_sql_generator_loop
+from .final_responder import create_final_responder
 
-root_agent = SequentialAgent(
-    name="sql_agent",
-    description="An agent that can answer questions about Google Trends data using BigQuery.",
-    sub_agents=[schema_inspector, sql_generator_loop, final_responder]
-)
+def create_root_agent():
+    sub_agents = [
+        create_schema_inspector(),
+        create_sql_generator_loop(),
+        create_final_responder()
+    ]
+    if DATAPLEX_ENABLED:
+        sub_agents.insert(0, create_semantic_enricher())
+
+    return SequentialAgent(
+        name="sql_agent",
+        description="An agent that can answer questions about Google Trends data using BigQuery.",
+        sub_agents=sub_agents
+    )
+
+root_agent = create_root_agent()

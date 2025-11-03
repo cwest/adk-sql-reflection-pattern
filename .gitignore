@@ -122,6 +122,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Data
+data/
+
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -153,3 +157,11 @@ cython_debug/
 # Gemini
 .gemini/
 .gemini-clipboard/
+
+# Terraform
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+crash.log
+*.tfvars
+

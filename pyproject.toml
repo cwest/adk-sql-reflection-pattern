@@ -23,7 +23,23 @@ dependencies = [
     "toolbox-core>=0.5.2",
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "pytest>=8.4.2",
+    "poethepoet>=0.27.0",
+    "pytest-asyncio>=1.2.0",
 ]
+dataplex = [
+    "Faker>=26.0.0",
+    "pandas>=2.2.2",
+    "google-cloud-dataplex>=1.14.0",
+    "google-auth>=2.29.0",
+    "google-cloud-resource-manager>=1.12.2",
+]
+
+[tool.setuptools]
+packages = ["agents"]
+
+[tool.poe.tasks]
+datagen = "python scripts/generate_sample_data.py"
+metadata = "python scripts/attach_metadata.py"
